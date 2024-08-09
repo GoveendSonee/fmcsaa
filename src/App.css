@@ -71,3 +71,12 @@
   font-size: 1rem;
 }
 
+.fmcsa_red .MuiDataGrid-filler.css-8yphpr {
+  /* display: none; */
+  height: 5rem!important;
+}
+
+.fmcsa_red input[type="file"] {
+  font-size: 1.5rem;
+  padding: 2rem 0 0;
+}
