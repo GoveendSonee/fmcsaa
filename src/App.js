@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { DataGrid } from '@mui/x-data-grid'; // Import DataGrid
+import { DataGrid } from '@mui/x-data-grid';
 import * as XLSX from 'xlsx';
 import TextField from '@mui/material/TextField';
-import dataFile from './assets/data.xlsx';
 import { TailSpin } from 'react-loader-spinner';
 import './App.css';
 import PivotTableComponent from './PivotTableComponent';
@@ -40,16 +39,18 @@ const columns = [
 
 export default function App() {
   const [rows, setRows] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(false);
   const [searchText, setSearchText] = React.useState('');
   const [filteredRows, setFilteredRows] = React.useState([]);
 
-  React.useEffect(() => {
-    const fetchExcelData = async () => {
-      try {
-        const response = await fetch(dataFile);
-        const file = await response.arrayBuffer();
-        const workbook = XLSX.read(file, { type: 'array' });
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setLoading(true);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
@@ -63,15 +64,11 @@ export default function App() {
 
         setRows(rows);
         setFilteredRows(rows);
-      } catch (error) {
-        console.error('Error reading Excel file:', error);
-      } finally {
         setLoading(false);
-      }
-    };
-
-    fetchExcelData();
-  }, []);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  };
 
   const handleSearch = (event) => {
     setSearchText(event.target.value);
@@ -88,8 +85,14 @@ export default function App() {
     <div className='fmcsa_red'>
       <div className='title_Maino'>
         <h1 align='center'>FMCSA Viewer</h1>
-        <p align='center'>View FMCSA Official Data</p>
+        <p align='center'>Upload and View FMCSA Excel Official Data</p>
       </div>
+      <input
+        type="file"
+        accept=".xlsx, .xls"
+        onChange={handleFileUpload}
+        style={{ marginBottom: '1rem' }}
+      />
       <TextField
         variant="outlined"
         fullWidth
@@ -122,7 +125,7 @@ export default function App() {
               },
             }}
           />
-          <div className='title_Maino' style={{ marginTop: "1rem", padding: "1rem", fontSize: "1.52rem", border: "5px solid #fff" }}>
+           <div className='title_Maino' style={{ marginTop: "1rem", padding: "1rem", fontSize: "1.52rem", border: "5px solid #fff" }}>
             <p align='center'>View Pivot Table By Drag and Drop</p>
           </div>
           <PivotTableComponent data={filteredRows} />
@@ -131,3 +134,4 @@ export default function App() {
     </div>
   );
 }
+
