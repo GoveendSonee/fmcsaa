@@ -80,3 +80,8 @@
   font-size: 1.5rem;
   padding: 2rem 0 0;
 }
+
+.fmcsa_red canvas {
+  height: 28rem !important;
+}
+
